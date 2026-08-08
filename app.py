@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from flask import Flask, jsonify, render_template, request
 
-BASE_DIR = os.environ.get("ENERGY_PROJECT_DIR", r"D:\AI_Energy_Analytics_Project")
+BASE_DIR = os.environ.get("ENERGY_PROJECT_DIR", os.path.dirname(os.path.abspath(__file__)))
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 NOTEBOOKS_DIR = os.path.join(BASE_DIR, "notebooks")
 
@@ -32,6 +32,11 @@ FEATURE_COLUMNS = [
 
 ACORN_GROUPS = ["ACORN-", "ACORN-U", "Adversity", "Affluent", "Comfortable"]
 
+# ---------------------------------------------------------------------------
+# Internal / low-key technical detail (shown only in the collapsed "Model
+# details" panel, never on the main dashboard) — transcribed from the
+# notebook's executed Section 11 comparison output.
+# ---------------------------------------------------------------------------
 LEADERBOARD = [
     {"name": "LightGBM", "mae": 2.1611, "rmse": 3.9648, "r2": 0.8440, "best": True,
      "note": "Best model — early-stopped at 684 trees"},
@@ -408,4 +413,7 @@ def api_predict():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    # Render (and most cloud hosts) inject the port to bind via $PORT.
+    # Locally this just falls back to 5000, same as before.
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=os.environ.get("FLASK_DEBUG", "1") == "1")
